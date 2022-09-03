@@ -1,0 +1,100 @@
+#-------------------------------------------------------------------------------
+# Name:        Random coordinate generator
+# Purpose: Generate random coordinate with defined atom numbers and amount of geometries
+#
+# Author:      Yufei Zhang
+#
+# Created:     25/08/2022
+# Copyright:   (c) Yufei Zhang 2022
+# Licence:     free for use
+#-------------------------------------------------------------------------------
+import random
+import time
+from math import sqrt
+
+
+
+#define the functions
+
+def cal_dist(pointA, pointB):
+    xa = pointA[0]
+    ya = pointA[1]
+    za = pointA[2]
+    xb = pointB[0]
+    yb = pointB[1]
+    zb = pointB[2]
+    ds = sqrt((xa-xb)**2 + (ya-yb)**2 + (za-zb)**2)
+    return ds
+
+def check_dist(newpoint, ps):
+    for point in ps:
+        if cal_dist(newpoint, point) < 1:
+            return True
+    return False
+
+def generate_newpoint():
+    x = random.uniform(-1*radius, radius)
+
+    limit = sqrt(radius**2 - x**2)
+
+    y = 0.0
+
+    if limit > 0:
+        y = random.uniform(-1*limit, limit)
+    else:
+        y = random.uniform(limit, -1*limit)
+
+    reach = sqrt(x**2 + y**2)
+
+    limit = sqrt(radius**2 - reach**2)
+
+    z = 0.0
+
+    if limit > 0:
+        z = random.uniform(-1*limit, limit)
+    else:
+        z = random.uniform(limit, -1*limit)
+    return [x, y, z]
+
+#start the generation
+
+print("How many atoms are there?") #define the radius of the area for molecule
+atoms = int(input()) #atom numbers
+total = int(atoms)-1 #value for loop of X Y and Z coordinate
+radius = int((atoms-1)*1) #limitation of radius, more complicate, means 1.5 angstrom between each atom as for a linear molecule
+
+date = time.strftime("%Y-%m-%d", time.localtime())
+
+print("Amount of geometries?")
+amount = int(input()) #file amount
+counts = 1
+names = int(counts)
+
+while counts <= amount:
+    digits = "%04d" % names
+    total = int(atoms)-1
+    ps=[[0.0,0.0,0.0]]
+    while total > 0:
+        newpoint = generate_newpoint()
+        while check_dist(newpoint,ps):
+            if check_dist(newpoint,ps):
+                print("no")
+            else:
+                print("yes")
+            newpoint = generate_newpoint()
+        ps.append(newpoint)
+        total -= 1
+    for point in ps:
+        point_rep = str(point).replace("[","").replace("]","")
+        print(point_rep)
+        with open(f'{digits}.gjf','a') as f:
+            f.write(point_rep)
+            f.write("\n")
+
+    names += 1
+
+    counts += 1
+
+    print("finished")
+    print(date)
+
